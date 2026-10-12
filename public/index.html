@@ -11,22 +11,23 @@
 <div class="app" id="app">
   <section class="screen active" id="home">
     <header class="top">
-      <div class="brand"><span class="logo"><i></i><i></i><i></i><i></i><i></i></span></div>
+      <div class="brand"><span class="wordmark">PULSE</span></div>
+      <button class="topbtn toprefresh" id="homeRefresh" type="button" aria-label="Обновить">↻</button>
     </header>
     <div class="pillnav" id="cats"></div>
     <div class="scroll feed" id="feed"><div class="loading">Загружаем твой PULSE…</div></div>
-    <nav class="bottom" id="nav"></nav>
+    <nav class="bottom" id="homeNav"></nav>
   </section>
 
   <section class="screen" id="search">
-    <header class="top"><div class="brand"><span class="logo"><i></i><i></i><i></i><i></i><i></i></span></div></header>
+    <header class="top"><div class="brand"><span class="wordmark">PULSE</span></div></header>
     <div class="searchbox"><input id="searchInput" placeholder="Найти событие, тему или источник" autocomplete="off"></div>
     <div class="scroll resultlist" id="searchResults"><div class="empty">Ищи по всему индексу PULSE.</div></div>
     <nav class="bottom"></nav>
   </section>
 
   <section class="screen" id="digest">
-    <header class="top inner-top"><button class="topbtn" data-nav="home" aria-label="Назад">‹</button><div class="brand"><span class="logo"><i></i><i></i><i></i><i></i><i></i></span></div><span class="top-spacer"></span></header>
+    <header class="top inner-top"><button class="topbtn" data-nav="home" aria-label="Назад">‹</button><div class="brand"><span class="wordmark">PULSE</span></div><span class="top-spacer"></span></header>
     <div class="scroll">
       <div class="digestHeader"><h1 id="digestTitle">Твои 5 минут</h1><p>Персональный дайджест на сегодня.<br>Ровно на то время, которое у тебя есть.</p><div class="pillnav" style="padding-left:0;margin-top:7px" id="digestMinutes"></div></div>
       <div class="timeline" id="timeline"></div>
@@ -36,17 +37,17 @@
   </section>
 
   <section class="screen" id="saved">
-    <header class="top"><button class="topbtn" data-nav="home">‹</button><div class="brand"><span class="logo"><i></i><i></i><i></i><i></i><i></i></span></div><button class="topbtn" id="savedRefresh">↻</button></header>
+    <header class="top"><button class="topbtn" data-nav="home">‹</button><div class="brand"><span class="wordmark">PULSE</span></div><button class="topbtn" id="savedRefresh">↻</button></header>
     <div class="section"><h2>Сохранённое</h2></div><div class="scroll resultlist" id="savedList"></div><nav class="bottom"></nav>
   </section>
 
   <section class="screen" id="profile">
-    <header class="top inner-top"><button class="topbtn" data-nav="home" aria-label="Назад">‹</button><div class="brand"><span class="logo"><i></i><i></i><i></i><i></i><i></i></span></div><span class="top-spacer"></span></header>
+    <header class="top inner-top"><button class="topbtn" data-nav="home" aria-label="Назад">‹</button><div class="brand"><span class="wordmark">PULSE</span></div><span class="top-spacer"></span></header>
     <div class="scroll profile" id="profileContent"></div><nav class="bottom"></nav>
   </section>
 
   <div class="detail" id="detail">
-    <div class="detailhead"><button class="topbtn" id="detailBack">‹</button><div class="brand"><span class="logo"><i></i><i></i><i></i><i></i><i></i></span></div><button class="topbtn" id="detailMore">⋯</button></div>
+    <div class="detailhead"><button class="topbtn" id="detailBack">‹</button><div class="brand"><span class="wordmark">PULSE</span></div><button class="topbtn" id="detailMore">⋯</button></div>
     <div class="detailbody" id="detailBody"></div>
   </div>
 

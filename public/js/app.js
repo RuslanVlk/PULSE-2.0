@@ -91,13 +91,23 @@ function timeAgo(d){
 }
 function initials(p){return(p?.name||'P').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase()}
 
+function renderNav(){
+  const items=[
+    ['home','⌂','Главная'],['search','⌕','Поиск'],['digest','◷','5 минут'],['saved','♡','Сохранённое'],['profile','◯','Профиль']
+  ];
+  $$('.bottom').forEach(el=>{
+    el.innerHTML=items.map(([id,icon,label])=>`<button type="button" class="navitem nav-${id} ${S.screen===id?'active':''}" data-nav="${id}"><span class="navicon" aria-hidden="true">${icon}</span><span>${label}</span></button>`).join('');
+    el.querySelectorAll('[data-nav]').forEach(btn=>btn.addEventListener('click',()=>show(btn.dataset.nav)));
+  });
+}
+
 function show(id){
   S.screen=id;
   $$('.screen').forEach(x=>x.classList.toggle('active',x.id===id));
   if(id==='saved')loadSaved();
   if(id==='profile')renderProfile();
   if(id==='digest')renderDigest();
-  nav();
+  renderNav();
 }
 function renderCats(){
   const selected=[...new Set((S.profile?.interests||[]).filter(x=>interests.includes(x)))];
@@ -206,10 +216,6 @@ function bindCards(){
     setTimeout(()=>{moved=false},80);
   };
   c.addEventListener('pointerup',finish);c.addEventListener('pointercancel',e=>{tracking=false;c.classList.remove('dragging');reset()});
-  let touchStartY=0,touchStartX=0,touchTracking=false;
-  c.addEventListener('touchstart',e=>{if(e.target.closest('[data-action]'))return;const t=e.touches[0];touchStartY=t.clientY;touchStartX=t.clientX;touchTracking=true;c.classList.add('dragging');},{passive:true});
-  c.addEventListener('touchmove',e=>{if(!touchTracking)return;const t=e.touches[0],dy=t.clientY-touchStartY,dx=t.clientX-touchStartX;if(Math.abs(dy)<Math.abs(dx)*1.15)return;e.preventDefault();const limited=Math.max(-Math.max(220,c.clientHeight*.55),Math.min(Math.max(220,c.clientHeight*.55),dy));const rot=limited/(Math.max(320,c.clientHeight))*3;c.style.transform=`translate3d(0,${limited}px,0) rotate(${rot}deg) scale(${1-Math.min(.045,Math.abs(limited)/9000)})`;c.style.opacity=String(1-Math.min(.28,Math.abs(limited)/700));},{passive:false});
-  c.addEventListener('touchend',e=>{if(!touchTracking)return;touchTracking=false;c.classList.remove('dragging');const dy=e.changedTouches[0].clientY-touchStartY,dx=e.changedTouches[0].clientX-touchStartX,threshold=Math.max(82,c.clientHeight*.16);if(Math.abs(dy)>=threshold&&Math.abs(dy)>Math.abs(dx)){const dir=dy<0?1:-1;const list=filterNews().filter(isRussianEvent);if((dir>0&&S.feedIndex<list.length-1)||(dir<0&&S.feedIndex>0)){c.classList.add(dir>0?'swipe-out-up':'swipe-out-down');c.style.transform=`translate3d(0,${dir>0?-125:125}%,0) rotate(${dir>0?-4:4}deg)`;c.style.opacity='.05';setTimeout(()=>moveCard(dir),260);return;}}reset();},{passive:true});
   c.addEventListener('click',e=>{if(e.target.closest('[data-action]'))return;if(moved)return;openEvent(c.dataset.id)});
 }
 
@@ -398,6 +404,7 @@ function hideEvent(e){
   api('/api/hide/'+encodeURIComponent(e.id),{method:'POST'}).then(()=>{$('#detail').classList.remove('open');S.news=S.news.filter(x=>x.id!==e.id);renderHome();toast('Понял. Буду показывать меньше такого')}).catch(()=>toast('Не удалось изменить подборку'));
 }
 $('#savedRefresh').onclick=loadSaved;
+$('#homeRefresh').onclick=()=>loadNews(true);
 $('#startDigest').onclick=startDigest;
 
 tgInit();

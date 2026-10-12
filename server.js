@@ -105,7 +105,7 @@ function splitSentences(s=''){
  return cleanText(s).split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(x=>x.length>35);
 }
 function editorialSummary(title,description,body='',source=''){
- const candidates=[description,body].map(x=>stripNewsNoise(x,source,title)).filter(x=>x.length>40);
+ const candidates=[body,description].map(x=>stripNewsNoise(x,source,title)).filter(x=>x.length>40);
  const sentences=[];
  for(const text of candidates){
    for(const sentence of splitSentences(text)){
@@ -122,14 +122,19 @@ function editorialSummary(title,description,body='',source=''){
 }
 function editorialWhy(title,summary,topics,geography){
  const t=norm(`${title} ${summary}`);
- if(topics.includes('Авто'))return 'Это влияет на рынок автомобилей, цены, доступность моделей или выбор покупателей — в зависимости от того, что именно изменилось в событии.';
- if(topics.includes('Бизнес')||topics.includes('Финансы'))return 'Событие связано с деньгами, рынком или решениями компаний и может повлиять на цены, бизнес или инвестиционные ожидания.';
- if(topics.includes('Технологии')||topics.includes('Наука'))return 'Суть события — в изменении технологии, продукта или научного результата; важно понимать не только факт, но и практический эффект.';
- if(topics.includes('Криптовалюты'))return 'Изменение может повлиять на цены цифровых активов, настроение рынка или решения участников крипторынка.';
- if(topics.includes('Локальное')||geography.length)return 'Событие имеет географическую привязку и может быть важно для людей, бизнеса или инфраструктуры в указанном месте.';
- if(topics.includes('Спорт'))return 'Событие меняет текущую ситуацию в соревновании, команде или карьере участников.';
- return 'Важно отделять подтверждённый факт от предположений: PULSE показывает, что именно сообщили источники и какие последствия из этого уже следуют.';
+ if(/атак|ракет|обстрел|войн|конфликт|взрыв|теракт|погиб|ранен|ударил/.test(t)){
+   if(/аэропорт|рейс|авиарейс|самолет/.test(t))return 'Атака может повлиять на безопасность и работу аэропорта, а также привести к задержкам или отменам рейсов.';
+   return 'Событие может повлиять на безопасность людей, дальнейшее развитие конфликта и решения властей.';
+ }
+ if(/ставк|инфляц|курс|доллар|рубл|евро|акци|бирж|банк/.test(t))return 'Изменение может отразиться на ценах, стоимости денег или ожиданиях участников рынка.';
+ if(/запуст|релиз|обновлен|нейросет|искусственн|чип|смартфон|приложен|кибер/.test(t))return 'Изменение важно тем, что может повлиять на доступность продукта, возможности пользователей или рынок технологий.';
+ if(/автомобил|машин|электромобил|tesla|bmw|mercedes/.test(t))return 'Новость может повлиять на модели, цены, поставки или выбор покупателей на автомобильном рынке.';
+ if(/матч|турнир|чемпион|гол|команд|спортсмен/.test(t))return 'Результат меняет текущую ситуацию в турнире, команде или карьере участников.';
+ if(/авиарейс|аэропорт|отел|туризм|путешеств/.test(t))return 'Изменение может повлиять на поездки, рейсы, цены или планы путешественников.';
+ if(/фильм|сериал|кино|премьера/.test(t))return 'Новость влияет на доступность, релиз или интерес к проекту и его создателям.';
+ return 'Здесь важен практический эффект события: что изменилось и кого это может затронуть.';
 }
+
 function norm(s=''){return cleanText(s).toLowerCase().replace(/ё/g,'е').replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim()}
 function tokens(s){return new Set(norm(s).split(/\s+/).filter(w=>w.length>3))}
 function similarity(a,b){const A=tokens(a),B=tokens(b);if(!A.size||!B.size)return 0;let same=0;for(const x of A)if(B.has(x))same++;return same/(A.size+B.size-same)}
@@ -200,8 +205,17 @@ function classify(item){
    if(hits>0)scores.push([name,hits]);
  }
  scores.sort((a,b)=>b[1]-a[1]);
- const topics=forced?[forced,...scores.filter(x=>x[0]!==forced).slice(0,2).map(x=>x[0])]:scores.slice(0,3).map(x=>x[0]);
- if(!topics.length)topics.push('Новости');
+ const conflict=/(войн|конфликт|обстрел|ракет|атак|теракт|санкц|президент|правительств|министр|выбор|парламент|дипломат)/.test(t);
+ const sport=/(футбол|баскетбол|теннис|хоккей|матч|турнир|гол|чемпион|спортсмен)/.test(t);
+ const auto=/(авто|автомобил|электромобил|tesla|bmw|mercedes|toyota|volkswagen)/.test(t);
+ const travel=/(аэропорт|авиарейс|отел|туризм|путешеств)/.test(t);
+ let primary=forced||'';
+ if(conflict)primary=t.includes('президент')||t.includes('правительств')||t.includes('министр')||t.includes('выбор')?'Политика':'Мир';
+ else if(sport)primary='Спорт';
+ else if(auto)primary='Авто';
+ else if(travel)primary='Путешествия';
+ else if(scores.length)primary=scores[0][0];
+ const topics=primary?[primary,...scores.filter(x=>x[0]!==primary).slice(0,2).map(x=>x[0])]:['Новости'];
  let important=0;for(const x of IMPORTANT)if(tokenHit(t,x))important++;
  let action=0;for(const x of ACTION)if(tokenHit(t,x))action++;
  const geography=[];
